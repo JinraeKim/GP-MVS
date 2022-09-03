@@ -250,4 +250,24 @@ print("{:>10}, {:>10}, {:>10}, {:>10}".format(*error_names))
 print("{:10.4f}, {:10.4f}, {:10.4f}, {:10.4f}".format(*mean_errors[0]))
 
 if args.savepath is not None:
+    dir_depth_img = args.seqpath + "depth_img" 
+    os.makedirs(dir_depth_img, exist_ok=True)
+    # gt
+    dir_gt_img = args.seqpath + "gt_img"
+    os.makedirs(dir_gt_img, exist_ok=True)
     np.save(args.savepath, np.array(preds))
+
+    scale_for_vis = 10  # only for visualisation
+    for gt_path, pred, img_path in zip(gts, preds, imgs):
+        # gt
+        gt_depth = np.load(gt_path)
+        _gt_depth = 1000 * gt_depth  # m -> mm
+        gt_img_path = dir_gt_img + "/" + os.path.basename(img_path)
+        cv2.imwrite(gt_img_path, scale_for_vis * _gt_depth.astype(np.uint16))
+        # pred
+        depth = 1 / pred
+        _depth = 1000 * depth  # m -> mm
+        # _depth_scaled = _depth * (np.median(_gt_depth) / np.median(_depth))
+        _depth_scaled = _depth
+        depth_img_path = dir_depth_img + "/" + os.path.basename(img_path)
+        cv2.imwrite(depth_img_path, scale_for_vis * _depth_scaled.astype(np.uint16))

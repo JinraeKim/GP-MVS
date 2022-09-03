@@ -35,7 +35,8 @@ class GPlayer(nn.Module):
         K = torch.exp(self.gamma2) * (1 + math.sqrt(3) * D / torch.exp(self.ell)) * torch.exp(-math.sqrt(3) * D / torch.exp(self.ell))
         I = torch.eye(l).expand(b, l, l).float()
 
-        X,_ = torch.gesv(Y, K+torch.exp(self.sigma2)*I)
+        # X,_ = torch.gesv(Y, K+torch.exp(self.sigma2)*I)  # deprecated; https://pytorch.org/docs/1.1.0/torch.html#torch.gesv
+        X,_ = torch.solve(Y, K+torch.exp(self.sigma2)*I)
 
         Z = K.bmm(X)
 
